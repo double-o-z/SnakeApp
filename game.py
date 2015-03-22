@@ -31,7 +31,6 @@ class Game:
         time.sleep(2)
         message = ''
         while True:
-            # self.cycle()
             self.draw_jungle()
             try:
                 signal.alarm(3)
