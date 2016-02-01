@@ -22,6 +22,7 @@ Your goal in life - eat apples on the field.
 <br>
 Enter a letter from the following legend, and press enter to change direction:
 <br>
+<br>
 <h4> Game Keys </h4>
 ```
 [A]Left, [S]Down, [W]Up, [D]Right.
