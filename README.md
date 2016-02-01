@@ -16,7 +16,6 @@ python game.py
 ```
 <br>
 <h3>Gameplay:</h3>
-<br><br>
 You are a snake.
 <br>
 Your goal in life - eat apples on the field.
