@@ -1,7 +1,13 @@
 <h1> Snake Game </h1>
 <br>
 This is a simple Snake game.
-<br><br>
+<br>
+<h3>Installation process:</h3>
+Run the following line in terminal to download the game to your desktop
+```python
+git clone git@github.com:double-o-z/SnakeApp.git
+```
+<br>
 To start the game run this command in the terminal/shell:
 <br>
 ```python
