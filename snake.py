@@ -1,12 +1,6 @@
 __author__ = 'OR'
 import random
 
-CELLS = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4),
-         (1, 0), (1, 1), (1, 2), (1, 3), (1, 4),
-         (2, 0), (2, 1), (2, 2), (2, 3), (2, 4),
-         (3, 0), (3, 1), (3, 2), (3, 3), (3, 4),
-         (4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]
-
 DIRECTIONS = {
     'A': {
         'Direction': 'Left',
@@ -32,7 +26,8 @@ DIRECTIONS = {
 
 
 class Snake:
-    def __init__(self):
+    def __init__(self, cells):
+        self.cells = cells
         self.length = 0
         self.apples = 0
         self.current_direction = None
@@ -57,7 +52,7 @@ class Snake:
         self.current_direction = DIRECTIONS.get(self.user_input)
         self.current_head = (self.current_head[0] + self.current_direction['Y-Axis'],
                              self.current_head[1] + self.current_direction['X-Axis'])
-        if self.current_head not in CELLS:
+        if self.current_head not in self.cells:
             seperator = '\n{}'.format('=' * 20)
             print(seperator)
             print("\n\nBumped the wall. Game Over.\n")
@@ -72,7 +67,7 @@ Score: {}
         self.length += 1
 
     def create_snake(self):
-        self.body.append(random.choice(CELLS))
+        self.body.append(random.choice(self.cells))
         self.length += 1
         self.current_head = self.body[0]
         self.current_direction = random.choice(DIRECTIONS.keys())

@@ -1,16 +1,16 @@
 __author__ = 'OR'
 import random
-from snake import CELLS
 
 
 class Apple:
-    def __init__(self):
+    def __init__(self, cells):
+        self.cells = cells
         self.eaten = 0
         self.dropped = 0
         self.location = None
 
     def generate_apple(self, snake_body):
-        cells_without_snake = list(CELLS)
+        cells_without_snake = list(self.cells)
         for cell in snake_body:
             cells_without_snake.remove(cell)
         if cells_without_snake:
