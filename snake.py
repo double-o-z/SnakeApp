@@ -71,8 +71,8 @@ Score: {}
         self.body.append(self.current_head)
         self.length += 1
 
-    def create_snake(self, tile):
-        self.body.append(tile)
+    def create_snake(self):
+        self.body.append(random.choice(CELLS))
         self.length += 1
         self.current_head = self.body[0]
         self.current_direction = random.choice(DIRECTIONS.keys())

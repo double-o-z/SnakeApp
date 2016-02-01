@@ -1,5 +1,4 @@
 __author__ = 'OR'
-import random
 import signal
 import time
 import sys
@@ -7,37 +6,27 @@ import sys
 sys.path.append("/Users/or/dev/Snake")
 
 from snake import Snake, CELLS
+from apple import Apple
 
 
 class Game:
     def __init__(self):
         self.snake = Snake()
-        self.snake.create_snake(random.choice(CELLS))
+        self.snake.create_snake()
+        self.apple = Apple()
+        self.apple.generate_apple(self.snake.body)
         signal.signal(signal.SIGALRM, self.raise_exception)
 
     def raise_exception(self, sig_num, stack_frame):
         raise KeyboardInterrupt
 
     def start_game(self):
-        message = \
-            """
-Welcome to the Snake Jungle v1.0
-Enter a direction by it's letter, then press the Enter Key:
-[A]LEFT, [W]UP, [S]DOWN, [D]RIGHT And Press Enter.
-The Game will begin in 2 seconds.
-"""
-        print(message)
+        self.game_start_print()
         time.sleep(2)
         message = ''
         while True:
             if self.snake.length >= len(CELLS):
-                message = "Good Game, You WIN."
-                print(message)
-                score_int = 5 * len(self.snake.body)
-                score = """
-Score: {}
-""".format(score_int)
-                print(score)
+                self.game_over_print("Good Game, You WIN.")
                 exit(1)
             self.draw_jungle()
             try:
@@ -46,23 +35,15 @@ Score: {}
                 signal.alarm(0)
             except KeyboardInterrupt:
                 self.snake.grow_snake()
-            if self.snake.body[-1] in self.snake.body[:-1]:
-                message = \
-                    """
-Oops..
-You ate yourself.
-Game Over.
-"""
-                break
+            if self.snake.current_head in self.snake.body[:-1]:
+                message = "You ate yourself. Game Over."
+                self.game_over_print(message)
+                exit(1)
+            elif self.snake.current_head == self.apple.location:
+                self.apple.eat_apple()
+                self.apple.generate_apple(self.snake.body)
             else:
                 continue
-        print(message)
-        score_int = 5 * len(self.snake.body)
-        score = """
-Score: {}
-""".format(score_int)
-        print(score)
-        exit(0)
 
     def draw_jungle(self):
         seperator = '\n{}'.format('=' * 20)
@@ -73,9 +54,11 @@ Score: {}
         for idx, cell in enumerate(CELLS):
             content = '_'
             if cell in self.snake.body:
-                content = 'S'
+                content = 'o'
                 if cell == self.snake.body[-1]:
-                    content = 'O'
+                    content = 's'
+            if cell == self.apple.location:
+                content = '*'
             if idx + 1 in [5, 10, 15, 20, 25]:
                 print_line += tile.format(content + '|')
                 print(print_line)
@@ -86,5 +69,30 @@ Score: {}
                 print_line += tile.format(content)
         print(seperator)
 
+    def game_over_print(self, message):
+        seperator = '\n{}'.format('=' * 20)
+        print(seperator)
+        print("\n\n")
+        print(message)
+        score_int = 5 * len(self.snake.body)
+        score_int += 50 * self.apple.eaten
+        score = """
+Score: {}\n\n
+""".format(score_int)
+        print(score)
+        print(seperator)
 
-Game().start_game()
+    def game_start_print(self):
+        message = \
+            """
+Welcome to the Snake Jungle v1.0
+Enter a direction by it's letter, then press the Enter Key:
+[A]LEFT, [W]UP, [S]DOWN, [D]RIGHT And Press Enter.
+The Game will begin in 2 seconds.
+"""
+        print(message)
+
+
+if __name__ == "__main__":
+    game = Game()
+    game.start_game()
