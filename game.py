@@ -14,7 +14,7 @@ class Game:
         self.field_size = field_size
         self.refresh_speed = refresh_speed
         self.cells = [(i, j) for i in list(xrange(self.field_size)) for j in list(xrange(self.field_size))]
-        self.snake = Snake(self.cells)
+        self.snake = Snake(self.field_size, self.cells)
         self.snake.create_snake()
         self.apple = Apple(self.cells)
         self.apple.generate_apple(self.snake.body)
@@ -24,8 +24,9 @@ class Game:
         raise KeyboardInterrupt
 
     def start_game(self):
-        self.game_start_print()
-        time.sleep(2)
+        game_start_delay = 4
+        self.game_start_print(game_start_delay)
+        time.sleep(game_start_delay)
         message = ''
         while True:
             if self.snake.length >= len(self.cells):
@@ -89,7 +90,7 @@ Score: {}\n\n
         print(score)
         print(seperator)
 
-    def game_start_print(self):
+    def game_start_print(self, game_start_delay):
         clean_screen = "\n" * 100
         print(clean_screen)
         message = \
@@ -97,43 +98,53 @@ Score: {}\n\n
 Welcome to the Snake Jungle v1.0
 Enter a direction by it's letter, then press the Enter Key:
 [A]LEFT, [W]UP, [S]DOWN, [D]RIGHT And Press Enter.
-The Game will begin in 2 seconds.
-"""
+The Game will begin in {} seconds.
+""".format(str(game_start_delay))
         print(message)
 
 
 def prompt_field_size():
+    field_size = 5
     try:
-        signal.alarm(5)
-        field_size = raw_input('Enter a number for the field size (1-20): ')
+        signal.alarm(10)
+        field_size = raw_input('Enter a number for the field size (3-20): ')
         if field_size:
             try:
                 field_size = int(field_size)
-            except Exception, e:
-                print(e)
+                if field_size < 3:
+                    field_size = 5
+                elif field_size > 20:
+                    field_size = 20
+            except Exception:
+                return 5
         else:
             field_size = 5
         signal.alarm(0)
         return field_size
     except KeyboardInterrupt:
-        pass
+        return 5
 
 
 def prompt_refresh_speed():
+    refresh_speed = 2
     try:
-        signal.alarm(5)
+        signal.alarm(10)
         refresh_speed = raw_input('Enter a number for the refresh speed in seconds (1-3): ')
         if refresh_speed:
             try:
                 refresh_speed = int(refresh_speed)
-            except Exception, e:
-                print(e)
+                if refresh_speed > 3:
+                    refresh_speed = 3
+                elif refresh_speed < 1:
+                    refresh_speed = 1
+            except Exception:
+                return 2
         else:
             refresh_speed = 2
         signal.alarm(0)
         return refresh_speed
     except KeyboardInterrupt:
-        pass
+        return 2
 
 
 if __name__ == "__main__":
