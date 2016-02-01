@@ -1,15 +1,29 @@
-This is a simple Snake game.<br><br>
+<h1> Snake Game </h1>
+<br>
+This is a simple Snake game.
+<br><br>
 To start the game run this command in the terminal/shell:
+<br>
 ```python
 python game.py
 
 ```
-You start as a baby snake, and as you eat more apples from the jungle,<br>
-you will grow in size.<br><br>
- Make sure you don't eat your own body, because then you lose the game.<br>
- <br>
- You win the game by eating all of the apples and filling the screen with your body.
- <br><br>
- You move with a the ASDW Keys:<br> [A]Left, [S]Down, [W]Up, [D]Right.
- <br><br><br>
- Enjoy.
+<br>
+Gameplay:
+<br><br>
+You are a snake.
+<br>
+Your goal in life - eat apples on the field.
+<br>
+Enter a letter from the following legend, and press enter to change direction:
+<br>
+```
+[A]Left, [S]Down, [W]Up, [D]Right.
+```
+<br>
+But beware - Do not travel to far form the field (for you will crush yourself onto a wall...)
+<br>
+Also try not to eat your own body.
+
+<br>
+<h3> Enjoy! </h3>
