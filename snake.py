@@ -41,7 +41,7 @@ class Snake:
         self.user_input = None
 
     def get_direction(self):
-        print('Insert Move: ')
+        # print('Insert Move: ')
         user_input = raw_input().upper()
         if user_input:
             self.user_input = user_input

@@ -46,6 +46,8 @@ class Game:
                 continue
 
     def draw_jungle(self):
+        clean_screen = "\n" * 100
+        print(clean_screen)
         seperator = '\n{}'.format('=' * 20)
         roof = ' _ _ _ _ _'
         print(seperator)
@@ -70,6 +72,8 @@ class Game:
         print(seperator)
 
     def game_over_print(self, message):
+        clean_screen = "\n" * 100
+        print(clean_screen)
         seperator = '\n{}'.format('=' * 20)
         print(seperator)
         print("\n\n")
@@ -83,6 +87,8 @@ Score: {}\n\n
         print(seperator)
 
     def game_start_print(self):
+        clean_screen = "\n" * 100
+        print(clean_screen)
         message = \
             """
 Welcome to the Snake Jungle v1.0
