@@ -40,7 +40,7 @@ class Game:
             pass
 
     def start_game(self):
-        game_start_delay = 4
+        game_start_delay = 5
         self.game_start_print(game_start_delay)
         time.sleep(game_start_delay)
         message = ''
