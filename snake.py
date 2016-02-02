@@ -37,14 +37,15 @@ class Snake:
         self.user_input = None
 
     def get_direction(self):
-        user_input = raw_input().upper()
+        user_input = raw_input()
         if user_input:
-            self.user_input = user_input
-            if self.user_input in DIRECTIONS.keys():
-                self.grow_snake()
-            elif self.user_input == 'Q':
-                print("Game Over")
-                exit(1)
+            if user_input[-1].upper():
+                self.user_input = user_input[-1].upper()
+                if self.user_input in DIRECTIONS.keys():
+                    self.grow_snake()
+                elif self.user_input == 'Q':
+                    print("Game Over")
+                    exit(1)
         return
 
     def grow_snake(self):
@@ -53,6 +54,8 @@ class Snake:
         self.current_head = (self.current_head[0] + self.current_direction['Y-Axis'],
                              self.current_head[1] + self.current_direction['X-Axis'])
         if self.current_head not in self.cells:
+            clean_screen = "\n" * 100
+            print(clean_screen)
             seperator = '\n{}'.format('=' * 20)
             print(seperator)
             print("\n\nBumped the wall. Game Over.\n")

@@ -10,18 +10,34 @@ from apple import Apple
 
 
 class Game:
-    def __init__(self, field_size, refresh_speed):
-        self.field_size = field_size
-        self.refresh_speed = refresh_speed
+    def __init__(self):
+        self.signal = signal
+        self.signal.signal(signal.SIGALRM, self.raise_exception)
+        self.field_size = 4
+        self.refresh_speed = 1.25
+        self.user_input = None
+        self.prompt_difficulty()
         self.cells = [(i, j) for i in list(xrange(self.field_size)) for j in list(xrange(self.field_size))]
         self.snake = Snake(self.field_size, self.cells)
         self.snake.create_snake()
         self.apple = Apple(self.cells)
         self.apple.generate_apple(self.snake.body)
-        signal.signal(signal.SIGALRM, self.raise_exception)
 
     def raise_exception(self, sig_num, stack_frame):
         raise KeyboardInterrupt
+
+    def prompt_difficulty(self):
+        self.signal.setitimer(self.signal.ITIMER_REAL, 5)
+        try:
+            self.user_input = raw_input(
+                "Choose Game Difficulty By Number: [1]Easy, [2]Normal, [3]Hard, [4]Veteran, [5]Expert: ")
+            if self.user_input:
+                if self.user_input in '12345':
+                    self.field_size = int(self.user_input) * 4  # 4 - 20
+                    self.refresh_speed = float(0.25) * (6 - int(self.user_input))
+            self.signal.setitimer(self.signal.ITIMER_REAL, 0)
+        except KeyboardInterrupt:
+            pass
 
     def start_game(self):
         game_start_delay = 4
@@ -34,9 +50,10 @@ class Game:
                 exit(1)
             self.draw_jungle()
             try:
-                signal.alarm(self.refresh_speed)
+                # self.signal.alarm(self.refresh_speed)
+                self.signal.setitimer(self.signal.ITIMER_REAL, self.refresh_speed)
                 self.snake.get_direction()
-                signal.alarm(0)
+                self.signal.setitimer(self.signal.ITIMER_REAL, 0)
             except KeyboardInterrupt:
                 self.snake.grow_snake()
             if self.snake.current_head in self.snake.body[:-1]:
@@ -50,8 +67,9 @@ class Game:
                 continue
 
     def draw_jungle(self):
-        clean_screen = "\n" * 100
-        print(clean_screen)
+        clean_screen_top = "\n" * 100
+        clean_screen_bottom = "\n" * 30
+        print(clean_screen_top)
         seperator = '\n{}'.format('=' * 20)
         roof = ' {} '.format(' '.join('_' * self.field_size))
         print(seperator)
@@ -74,6 +92,7 @@ class Game:
             else:
                 print_line += tile.format(content)
         print(seperator)
+        print(clean_screen_bottom)
 
     def game_over_print(self, message):
         clean_screen = "\n" * 100
@@ -89,6 +108,8 @@ Score: {}\n\n
 """.format(score_int)
         print(score)
         print(seperator)
+        clean_screen_bottom = "\n" * 30
+        print(clean_screen_bottom)
 
     def game_start_print(self, game_start_delay):
         clean_screen = "\n" * 100
@@ -101,54 +122,11 @@ Enter a direction by it's letter, then press the Enter Key:
 The Game will begin in {} seconds.
 """.format(str(game_start_delay))
         print(message)
-
-
-def prompt_field_size():
-    field_size = 5
-    try:
-        signal.alarm(10)
-        field_size = raw_input('Enter a number for the field size (3-20): ')
-        if field_size:
-            try:
-                field_size = int(field_size)
-                if field_size < 3:
-                    field_size = 5
-                elif field_size > 20:
-                    field_size = 20
-            except Exception:
-                return 5
-        else:
-            field_size = 5
-        signal.alarm(0)
-        return field_size
-    except KeyboardInterrupt:
-        return 5
-
-
-def prompt_refresh_speed():
-    refresh_speed = 2
-    try:
-        signal.alarm(10)
-        refresh_speed = raw_input('Enter a number for the refresh speed in seconds (1-3): ')
-        if refresh_speed:
-            try:
-                refresh_speed = int(refresh_speed)
-                if refresh_speed > 3:
-                    refresh_speed = 3
-                elif refresh_speed < 1:
-                    refresh_speed = 1
-            except Exception:
-                return 2
-        else:
-            refresh_speed = 2
-        signal.alarm(0)
-        return refresh_speed
-    except KeyboardInterrupt:
-        return 2
+        clean_screen_bottom = "\n" * 30
+        print(clean_screen_bottom)
 
 
 if __name__ == "__main__":
-    field_size = prompt_field_size()
-    refresh_speed = prompt_refresh_speed()
-    game = Game(field_size, refresh_speed)
+    game = Game()
+    # game.prompt_difficulty()
     game.start_game()
