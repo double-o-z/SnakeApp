@@ -25,7 +25,18 @@ Enter a letter from the following legend, and press enter to change direction:
 <br>
 <h4> Game Keys </h4>
 ```
-[A]Left, [S]Down, [W]Up, [D]Right.
+Enter a command by it's letter, then press the Enter Key:
+
+Movement:
+    [W]
+[A]     [D]
+    [S]
+
+
+Gameplay Options:
+    [-]Slower
+    [+]Faster
+    [Q]Quit
 ```
 <br>
 But beware - Do not travel to far form the field (for you will crush yourself onto a wall...)
