@@ -26,9 +26,10 @@ DIRECTIONS = {
 
 
 class Snake:
-    def __init__(self, field_size, cells):
+    def __init__(self, field_size, cells, apple):
         self.cells = cells
         self.field_size = field_size
+        self.apple = apple
         self.length = 0
         self.apples = 0
         self.current_direction = None
@@ -42,13 +43,13 @@ class Snake:
             if user_input[-1].upper():
                 self.user_input = user_input[-1].upper()
                 if self.user_input in DIRECTIONS.keys():
-                    self.grow_snake()
+                    self.move_snake()
                 elif self.user_input == 'Q':
                     print("Game Over")
                     exit(1)
         return
 
-    def grow_snake(self):
+    def move_snake(self):
         self.current_head = self.body[-1]
         self.current_direction = DIRECTIONS.get(self.user_input)
         self.current_head = (self.current_head[0] + self.current_direction['Y-Axis'],
@@ -67,7 +68,16 @@ Score: {}
             print(seperator)
             exit(1)
         self.body.append(self.current_head)
-        self.length += 1
+        if self.current_head in self.body[:-1]:
+            message = "You ate yourself. Game Over."
+            self.game_over_print(message)
+            exit(1)
+        elif self.current_head == self.apple.location:
+            self.apple.eat_apple()
+            self.length += 1
+            self.apple.generate_apple(self.body)
+        else:
+            del self.body[0]
 
     def create_snake(self):
         self.body.append(random.choice(self.cells))
@@ -92,3 +102,34 @@ Score: {}
             del directions_without_wall['D']
 
         return random.choice(directions_without_wall.keys())
+
+    def game_over_print(self, message):
+        clean_screen = "\n" * 100
+        print(clean_screen)
+        seperator = '\n{}'.format('=' * 20)
+        print(seperator)
+        print("\n\n")
+        print(message)
+        score_int = 5 * len(self.body)
+        score_int += 50 * self.apple.eaten
+        score = """
+Score: {}\n\n
+""".format(score_int)
+        print(score)
+        print(seperator)
+        clean_screen_bottom = "\n" * 30
+        print(clean_screen_bottom)
+
+    def game_start_print(self, game_start_delay):
+        clean_screen = "\n" * 100
+        print(clean_screen)
+        message = \
+            """
+Welcome to the Snake Jungle v1.0
+Enter a direction by it's letter, then press the Enter Key:
+[A]LEFT, [W]UP, [S]DOWN, [D]RIGHT And Press Enter.
+The Game will begin in {} seconds.
+""".format(str(game_start_delay))
+        print(message)
+        clean_screen_bottom = "\n" * 30
+        print(clean_screen_bottom)

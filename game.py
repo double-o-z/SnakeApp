@@ -18,9 +18,9 @@ class Game:
         self.user_input = None
         self.prompt_difficulty()
         self.cells = [(i, j) for i in list(xrange(self.field_size)) for j in list(xrange(self.field_size))]
-        self.snake = Snake(self.field_size, self.cells)
-        self.snake.create_snake()
         self.apple = Apple(self.cells)
+        self.snake = Snake(self.field_size, self.cells, self.apple)
+        self.snake.create_snake()
         self.apple.generate_apple(self.snake.body)
 
     def raise_exception(self, sig_num, stack_frame):
@@ -55,16 +55,7 @@ class Game:
                 self.snake.get_direction()
                 self.signal.setitimer(self.signal.ITIMER_REAL, 0)
             except KeyboardInterrupt:
-                self.snake.grow_snake()
-            if self.snake.current_head in self.snake.body[:-1]:
-                message = "You ate yourself. Game Over."
-                self.game_over_print(message)
-                exit(1)
-            elif self.snake.current_head == self.apple.location:
-                self.apple.eat_apple()
-                self.apple.generate_apple(self.snake.body)
-            else:
-                continue
+                self.snake.move_snake()
 
     def draw_jungle(self):
         clean_screen_top = "\n" * 100
