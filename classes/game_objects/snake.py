@@ -27,6 +27,7 @@ DIRECTIONS = {
 
 class Snake:
     def __init__(self, field_size, cells, apple):
+        self.user_input = None
         self.cells = cells
         self.field_size = field_size
         self.apple = apple
@@ -35,19 +36,6 @@ class Snake:
         self.current_direction = None
         self.current_head = None
         self.body = []
-        self.user_input = None
-
-    def get_direction(self):
-        user_input = raw_input()
-        if user_input:
-            if user_input[-1].upper():
-                self.user_input = user_input[-1].upper()
-                if self.user_input in DIRECTIONS.keys():
-                    self.move_snake()
-                elif self.user_input == 'Q':
-                    print("Game Over")
-                    exit(1)
-        return
 
     def move_snake(self):
         self.current_head = self.body[-1]
@@ -57,15 +45,12 @@ class Snake:
         if self.current_head not in self.cells:
             clean_screen = "\n" * 100
             print(clean_screen)
-            seperator = '\n{}'.format('=' * 20)
-            print(seperator)
             print("\n\nBumped the wall. Game Over.\n")
             score_int = 5 * len(self.body)
             score = """
 Score: {}
 """.format(score_int)
             print(score)
-            print(seperator)
             exit(1)
         self.body.append(self.current_head)
         if self.current_head in self.body[:-1]:
@@ -106,8 +91,6 @@ Score: {}
     def game_over_print(self, message):
         clean_screen = "\n" * 100
         print(clean_screen)
-        seperator = '\n{}'.format('=' * 20)
-        print(seperator)
         print("\n\n")
         print(message)
         score_int = 5 * len(self.body)
@@ -116,9 +99,6 @@ Score: {}
 Score: {}\n\n
 """.format(score_int)
         print(score)
-        print(seperator)
-        clean_screen_bottom = "\n" * 30
-        print(clean_screen_bottom)
 
     def game_start_print(self, game_start_delay):
         clean_screen = "\n" * 100
@@ -131,5 +111,4 @@ Enter a direction by it's letter, then press the Enter Key:
 The Game will begin in {} seconds.
 """.format(str(game_start_delay))
         print(message)
-        clean_screen_bottom = "\n" * 30
-        print(clean_screen_bottom)
+

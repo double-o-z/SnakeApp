@@ -5,23 +5,29 @@ import sys
 
 sys.path.append("/Users/or/dev/Snake")
 
-from snake import Snake
-from apple import Apple
+from classes.game_objects.snake import Snake, DIRECTIONS
+from classes.game_objects.apple import Apple
+from classes.printer import Printer
+from classes.decorators import with_alarm
 
 
 class Game:
     def __init__(self):
+        self.difficulties = '12345'
+        self.difficulty = 5
+        self.refresh_speed = 1.25
+        self.refresh_speed_interval = 0.25
+        self.slowest_refresh_rate = (len(self.difficulties) + 1) * self.refresh_speed_interval
+        self.fastest_refresh_rate = self.refresh_speed_interval
         self.signal = signal
         self.signal.signal(signal.SIGALRM, self.raise_exception)
         self.field_size = 4
-        self.refresh_speed = 1.25
         self.user_input = None
         self.prompt_difficulty()
         self.cells = [(i, j) for i in list(xrange(self.field_size)) for j in list(xrange(self.field_size))]
         self.apple = Apple(self.cells)
         self.snake = Snake(self.field_size, self.cells, self.apple)
-        self.snake.create_snake()
-        self.apple.generate_apple(self.snake.body)
+        self.printer = Printer(self.snake, self.apple, self.refresh_speed, self.difficulty)
 
     def raise_exception(self, sig_num, stack_frame):
         raise KeyboardInterrupt
@@ -32,38 +38,31 @@ class Game:
             self.user_input = raw_input(
                 "Choose Game Difficulty By Number: [1]Easy, [2]Normal, [3]Hard, [4]Veteran, [5]Expert: ")
             if self.user_input:
-                if self.user_input in '12345':
-                    self.field_size = int(self.user_input) * 4  # 4 - 20
-                    self.refresh_speed = float(0.25) * (6 - int(self.user_input))
+                if self.user_input in self.difficulties:
+                    self.difficulty = int(self.user_input)
+                    self.field_size = int(self.user_input) * 4
+                    self.refresh_speed = float(self.refresh_speed_interval) * (len(self.difficulties) + 1 - int(self.user_input))
             self.signal.setitimer(self.signal.ITIMER_REAL, 0)
         except KeyboardInterrupt:
             pass
 
     def start_game(self):
-        game_start_delay = 5
-        self.game_start_print(game_start_delay)
-        time.sleep(game_start_delay)
-        message = ''
         while True:
-            if self.snake.length >= len(self.cells):
-                self.game_over_print("Good Game, You WIN.")
-                exit(1)
+            self.game_status()
             self.draw_jungle()
             try:
-                # self.signal.alarm(self.refresh_speed)
-                self.signal.setitimer(self.signal.ITIMER_REAL, self.refresh_speed)
-                self.snake.get_direction()
-                self.signal.setitimer(self.signal.ITIMER_REAL, 0)
+                with_alarm(self.get_input, self.signal, self.refresh_speed)()
             except KeyboardInterrupt:
                 self.snake.move_snake()
 
+    def game_status(self):
+        if self.snake.length >= len(self.cells):
+            self.printer.game_over_print("Good Game, You WIN.")
+            exit(1)
+
     def draw_jungle(self):
-        clean_screen_top = "\n" * 100
-        clean_screen_bottom = "\n" * 30
-        print(clean_screen_top)
-        seperator = '\n{}'.format('=' * 20)
+        self.printer.clear_screen()
         roof = ' {} '.format(' '.join('_' * self.field_size))
-        print(seperator)
         print(roof)
         tile = '|{}'
         for idx, cell in enumerate(self.cells):
@@ -82,42 +81,60 @@ class Game:
                 print_line += tile.format(content)
             else:
                 print_line += tile.format(content)
-        print(seperator)
-        print(clean_screen_bottom)
+        self.printer.print_message()
 
-    def game_over_print(self, message):
-        clean_screen = "\n" * 100
-        print(clean_screen)
-        seperator = '\n{}'.format('=' * 20)
-        print(seperator)
-        print("\n\n")
-        print(message)
-        score_int = 5 * len(self.snake.body)
-        score_int += 50 * self.apple.eaten
-        score = """
-Score: {}\n\n
-""".format(score_int)
-        print(score)
-        print(seperator)
-        clean_screen_bottom = "\n" * 30
-        print(clean_screen_bottom)
+    def get_input(self):
+        user_input = raw_input()
+        if user_input:
+            if user_input[-1].upper():
+                self.user_input = user_input[-1].upper()
+                if self.user_input in DIRECTIONS.keys():
+                    self.snake.user_input = self.user_input
+                    self.snake.move_snake()
+                if self.user_input == 'Q':
+                    self.end_game()
+                elif self.user_input in ['-', '+']:
+                    self.change_refresh_speed()
+                    self.snake.move_snake()
+        return user_input
 
-    def game_start_print(self, game_start_delay):
-        clean_screen = "\n" * 100
-        print(clean_screen)
-        message = \
-            """
-Welcome to the Snake Jungle v1.0
-Enter a direction by it's letter, then press the Enter Key:
-[A]LEFT, [W]UP, [S]DOWN, [D]RIGHT And Press Enter.
-The Game will begin in {} seconds.
-""".format(str(game_start_delay))
-        print(message)
-        clean_screen_bottom = "\n" * 30
-        print(clean_screen_bottom)
+    def init_field(self):
+        self.snake.create_snake()
+        self.apple.generate_apple(self.snake.body)
+        self.printer.game_start_print()
+        with_alarm(self.player_ready, self.signal, 60)()
+
+    def player_ready(self):
+        user_input = raw_input()
+        if user_input == "":
+            return
+
+    def end_game(self):
+        print("Game Over")
+        exit(1)
+
+    def change_refresh_speed(self):
+        if self.user_input == '-':
+            if self.refresh_speed < self.slowest_refresh_rate:
+                self.refresh_speed += self.refresh_speed_interval
+                self.printer.refresh_speed += self.refresh_speed
+                self.printer.display_message("Speed Decreased. Current Refresh Rate: {} Seconds.".
+                                             format(self.refresh_speed))
+            else:
+                self.printer.display_message("Slowest Speed. Current Refresh Rate: {} Seconds.".
+                                             format(self.refresh_speed))
+        elif self.user_input == '+':
+            if self.refresh_speed > self.fastest_refresh_rate:
+                self.refresh_speed -= self.refresh_speed_interval
+                self.printer.refresh_speed += self.refresh_speed
+                self.printer.display_message("Speed Increased. Current Refresh Rate: {} Seconds.".
+                                             format(self.refresh_speed))
+            else:
+                self.printer.display_message("Fastest Speed. Current Refresh Rate: {} Seconds.".
+                                             format(self.refresh_speed))
 
 
 if __name__ == "__main__":
     game = Game()
-    # game.prompt_difficulty()
+    game.init_field()
     game.start_game()
